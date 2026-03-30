@@ -1,17 +1,25 @@
--- 1. TẠO DATABASE
+USE master;
+GO
+
+IF EXISTS (SELECT name FROM sys.databases WHERE name = 'SunnyPetDB')
+BEGIN
+    ALTER DATABASE SunnyPetDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE SunnyPetDB;
+END
+GO
+
 CREATE DATABASE SunnyPetDB;
 GO
 USE SunnyPetDB;
 GO
 
--- --- NHÓM QUẢN LÝ TÀI KHOẢN & NGƯỜI DÙNG ---
-
+-- --- NHÓM QUẢN LÝ TÀI KHOẢN ---
 CREATE TABLE Account (
     id INT PRIMARY KEY IDENTITY(1,1),
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL, -- ADMIN, DOCTOR, CUSTOMER
-    img VARCHAR(MAX),
+    role VARCHAR(50) NOT NULL, -- ADMIN, DOCTOR
+    is_active BIT DEFAULT 1,   
     created_at DATETIME2 DEFAULT GETDATE(),
     updated_at DATETIME2 DEFAULT GETDATE()
 );
@@ -33,28 +41,24 @@ CREATE TABLE Doctor (
 
 CREATE TABLE Customers (
     id INT PRIMARY KEY IDENTITY(1,1),
-    id_account INT UNIQUE, -- Có thể NULL nếu khách chưa đăng ký tài khoản web
     cus_name NVARCHAR(255) NOT NULL,
     sdt VARCHAR(20) NOT NULL,
-    email VARCHAR(255),
-    CONSTRAINT FK_Customers_Account FOREIGN KEY (id_account) REFERENCES Account(id)
+    email VARCHAR(255)
 );
 
 -- --- NHÓM QUẢN LÝ THÚ CƯNG ---
-
 CREATE TABLE Pets (
     id INT PRIMARY KEY IDENTITY(1,1),
     id_owner INT NOT NULL,
     name NVARCHAR(255) NOT NULL,
-    species NVARCHAR(100), -- Chó, Mèo...
-    breed NVARCHAR(100),   -- Giống
+    species NVARCHAR(100), 
+    breed NVARCHAR(100),   
     birth_month TINYINT,
     birth_year SMALLINT,
     CONSTRAINT FK_Pets_Owner FOREIGN KEY (id_owner) REFERENCES Customers(id)
 );
 
 -- --- NHÓM QUẢN LÝ DỊCH VỤ & THUỐC ---
-
 CREATE TABLE Services (
     id INT PRIMARY KEY IDENTITY(1,1),
     service_name NVARCHAR(255) NOT NULL,
@@ -66,21 +70,20 @@ CREATE TABLE Medicines (
     id INT PRIMARY KEY IDENTITY(1,1),
     name NVARCHAR(255) NOT NULL,
     category NVARCHAR(100),
-    stock_quantity INT DEFAULT 0, -- Admin dùng để tăng số lượng kho
-    cost_price DECIMAL(18,0),     -- Giá nhập
-    selling_price DECIMAL(18,0),  -- Giá bán
-    unit NVARCHAR(50)             -- Viên, Lọ, Gói...
+    stock_quantity INT DEFAULT 0,
+    cost_price DECIMAL(18,0),     
+    selling_price DECIMAL(18,0),  
+    unit NVARCHAR(50)             
 );
 
 -- --- NHÓM QUẢN LÝ LỊCH HẸN & BỆNH ÁN ---
-
 CREATE TABLE Schedule (
     id INT PRIMARY KEY IDENTITY(1,1),
     id_doc INT NOT NULL,
     id_cus INT NOT NULL,
     id_pet INT NOT NULL,
     time DATETIME2 NOT NULL,
-    status NVARCHAR(50) DEFAULT 'PENDING', -- PENDING, CONFIRMED, COMPLETED, CANCELLED
+    status NVARCHAR(50) DEFAULT 'PENDING', 
     created_at DATETIME2 DEFAULT GETDATE(),
     CONSTRAINT FK_Schedule_Doctor FOREIGN KEY (id_doc) REFERENCES Doctor(id),
     CONSTRAINT FK_Schedule_Customer FOREIGN KEY (id_cus) REFERENCES Customers(id),
@@ -89,27 +92,25 @@ CREATE TABLE Schedule (
 
 CREATE TABLE MedicalRecords (
     id INT PRIMARY KEY IDENTITY(1,1),
-    id_schedule INT UNIQUE NOT NULL, -- 1 lịch hẹn - 1 bệnh án
-    id_service INT NOT NULL,        -- 1 ca - 1 dịch vụ chính
+    id_schedule INT UNIQUE NOT NULL, 
+    id_service INT NOT NULL,        
     symptoms NVARCHAR(MAX),
-    diagnosis NVARCHAR(MAX),        -- Kết luận bệnh
-    notes NVARCHAR(MAX),            -- Ghi chú tính cách/bệnh đặc biệt
-    service_price DECIMAL(18,0),    -- Giá dịch vụ tại thời điểm khám
+    diagnosis NVARCHAR(MAX),        
+    notes NVARCHAR(MAX),            
+    service_price DECIMAL(18,0),    
     medicine_total_price DECIMAL(18,0) DEFAULT 0,
-    final_amount DECIMAL(18,0),     -- Tổng doanh thu ca khám
+    final_amount DECIMAL(18,0),     
     created_at DATETIME2 DEFAULT GETDATE(),
     CONSTRAINT FK_MedicalRecords_Schedule FOREIGN KEY (id_schedule) REFERENCES Schedule(id),
     CONSTRAINT FK_MedicalRecords_Service FOREIGN KEY (id_service) REFERENCES Services(id)
 );
-
--- --- CHI TIẾT ĐƠN THUỐC ---
 
 CREATE TABLE Prescriptions (
     id INT PRIMARY KEY IDENTITY(1,1),
     id_medical_record INT NOT NULL,
     id_medicine INT NOT NULL,
     quantity INT NOT NULL,
-    price_at_sale DECIMAL(18,0), -- Giá bán thực tế lúc đó
+    price_at_sale DECIMAL(18,0), 
     CONSTRAINT FK_Prescriptions_Record FOREIGN KEY (id_medical_record) REFERENCES MedicalRecords(id),
     CONSTRAINT FK_Prescriptions_Medicine FOREIGN KEY (id_medicine) REFERENCES Medicines(id)
 );
