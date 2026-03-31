@@ -6,8 +6,9 @@ import {
   SidebarGroup,
   SidebarHeader,
 } from "@/components/ui/sidebar"
-import { AdminMenu } from "./admin/admin-menu"
-import { DoctorMenu } from "./doctor/doctor-menu"
+import { AdminMenu } from "../modules/admin/admin-menu"
+import { DoctorMenu } from "../modules/doctor/doctor-menu"
+import Link from "next/dist/client/link"
 
 interface AppSidebarProps {
   role: "admin" | "doctor"
@@ -17,7 +18,9 @@ export function AppSidebar({ role }: AppSidebarProps) {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="p-4 font-black text-xl text-[#E5484D]">Sunny Pet</div>
+        <Link href="/">
+          <div className="p-4 font-black text-xl text-[#E5484D]">Sunny Pet</div>
+        </Link>
       </SidebarHeader>
       
       <SidebarContent>

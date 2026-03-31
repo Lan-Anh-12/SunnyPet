@@ -1,0 +1,90 @@
+// --- NHÓM 1: QUẢN LÝ TÀI KHOẢN (ROOT) ---
+Table Account {
+  id integer [primary key, increment]
+  email varchar [unique, not null]
+  password varchar [not null]
+  role varchar // ADMIN, DOCTOR, CUSTOMER
+  img varchar
+  is_active bit [default: 1]
+  created_at datetime2 [default: `now()`]
+  updated_at datetime2 [default: `now()`]
+}
+
+// --- NHÓM 2: THÔNG TIN CHI TIẾT NGƯỜI DÙNG ---
+Table Admin {
+  id integer [primary key, increment]
+  id_account integer [ref: - Account.id, unique, not null]
+  name nvarchar
+}
+
+Table Doctor {
+  id integer [primary key, increment]
+  id_account integer [ref: - Account.id, unique, not null]
+  name nvarchar
+  specialization nvarchar
+}
+
+Table Customers {
+  id integer [primary key, increment]
+  id_account integer [ref: - Account.id, unique] // Nullable nếu khách ko cần login
+  cus_name nvarchar [not null]
+  sdt varchar [not null]
+  email varchar 
+}
+
+// --- NHÓM 3: THỰC THỂ PHỤ THUỘC ---
+Table Pets {
+  id integer [primary key, increment]
+  id_owner integer [ref: > Customers.id, not null]
+  name nvarchar [not null]
+  species nvarchar
+  breed nvarchar
+  birth_month tinyint
+  birth_year smallint
+}
+
+// --- NHÓM 4: DANH MỤC HÀNG HÓA ---
+Table Services {
+  id integer [primary key, increment]
+  service_name nvarchar [not null]
+  option_name nvarchar
+  price decimal(18,0)
+}
+
+Table Medicines {
+  id integer [primary key, increment]
+  name nvarchar [not null]
+  category nvarchar
+  stock_quantity integer [default: 0]
+  cost_price decimal(18,0)
+  selling_price decimal(18,0)
+}
+
+// --- NHÓM 5: GIAO DỊCH & BIẾN ĐỘNG ---
+Table Schedule {
+  id integer [primary key, increment]
+  id_doc integer [ref: > Doctor.id, not null]
+  id_cus integer [ref: > Customers.id, not null]
+  id_pet integer [ref: > Pets.id, not null]
+  time datetime2 [not null]
+  status nvarchar [default: 'PENDING']
+  created_at datetime2 [default: `now()`]
+}
+
+Table MedicalRecords {
+  id integer [primary key, increment]
+  id_schedule integer [ref: - Schedule.id, unique, not null]
+  id_service integer [ref: > Services.id, not null]
+  symptoms nvarchar
+  diagnosis nvarchar
+  service_price decimal(18,0)
+  medicine_total_price decimal(18,0)
+}
+
+Table Prescriptions {
+  id integer [primary key, increment]
+  id_medical_record integer [ref: > MedicalRecords.id, not null]
+  id_medicine integer [ref: > Medicines.id, not null]
+  quantity integer [not null]
+  price_at_sale decimal(18,0)
+}

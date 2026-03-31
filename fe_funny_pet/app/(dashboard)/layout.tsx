@@ -1,5 +1,5 @@
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/web/modules/app-sidebar";
+import { AppSidebar } from "@/components/web/shared/app-sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip"; // 1. Import thêm cái này
 
 export default function DashboardLayout({
