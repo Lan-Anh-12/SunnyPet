@@ -12,7 +12,7 @@ export default function DashboardLayout({
     <TooltipProvider delayDuration={0}>
       <SidebarProvider>
         {/* Truyền role vào AppSidebar để hiển thị đúng Menu */}
-        <AppSidebar role="admin" />
+        <AppSidebar role="doctor" />
         
         <SidebarInset className="bg-gray-50/50 flex flex-col h-screen overflow-hidden">
           {/* Header của vùng nội dung */}
