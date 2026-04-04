@@ -1,2 +1,0 @@
-
-print(list("Hello, World!"))
