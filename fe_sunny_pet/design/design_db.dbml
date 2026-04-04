@@ -1,41 +1,39 @@
-// --- NHÓM 1: QUẢN LÝ TÀI KHOẢN (ROOT) ---
+// --- NHÓM 1: QUẢN LÝ TÀI KHOẢN ---
 Table Account {
   id integer [primary key, increment]
   email varchar [unique, not null]
   password varchar [not null]
-  role varchar // ADMIN, DOCTOR, CUSTOMER
-  img varchar
+  role varchar 
   is_active bit [default: 1]
   created_at datetime2 [default: `now()`]
   updated_at datetime2 [default: `now()`]
 }
 
-// --- NHÓM 2: THÔNG TIN CHI TIẾT NGƯỜI DÙNG ---
+// --- NHÓM 2: CHI TIẾT NGƯỜI DÙNG (QUAN HỆ 1-1 HIỆN 2 CHÌA KHÓA) ---
 Table Admin {
   id integer [primary key, increment]
-  id_account integer [ref: - Account.id, unique, not null]
+  id_account integer [unique, not null]
   name nvarchar
 }
 
 Table Doctor {
   id integer [primary key, increment]
-  id_account integer [ref: - Account.id, unique, not null]
+  id_account integer [unique, not null]
   name nvarchar
   specialization nvarchar
 }
 
 Table Customers {
   id integer [primary key, increment]
-  id_account integer [ref: - Account.id, unique] // Nullable nếu khách ko cần login
   cus_name nvarchar [not null]
   sdt varchar [not null]
   email varchar 
 }
 
-// --- NHÓM 3: THỰC THỂ PHỤ THUỘC ---
+// --- NHÓM 3: THỰC THỂ ---
 Table Pets {
   id integer [primary key, increment]
-  id_owner integer [ref: > Customers.id, not null]
+  id_owner integer [not null]
   name nvarchar [not null]
   species nvarchar
   breed nvarchar
@@ -43,12 +41,12 @@ Table Pets {
   birth_year smallint
 }
 
-// --- NHÓM 4: DANH MỤC HÀNG HÓA ---
+// --- NHÓM 4: DANH MỤC ---
 Table Services {
   id integer [primary key, increment]
   service_name nvarchar [not null]
   option_name nvarchar
-  price decimal(18,0)
+  price decimal(18,2)
 }
 
 Table Medicines {
@@ -56,16 +54,17 @@ Table Medicines {
   name nvarchar [not null]
   category nvarchar
   stock_quantity integer [default: 0]
-  cost_price decimal(18,0)
-  selling_price decimal(18,0)
+  cost_price decimal(18,2)
+  selling_price decimal(18,2)
+  unit nvarchar // Bổ sung cột này vì trong bảng Medicine của bạn có
 }
 
-// --- NHÓM 5: GIAO DỊCH & BIẾN ĐỘNG ---
+// --- NHÓM 5: GIAO DỊCH ---
 Table Schedule {
   id integer [primary key, increment]
-  id_doc integer [ref: > Doctor.id, not null]
-  id_cus integer [ref: > Customers.id, not null]
-  id_pet integer [ref: > Pets.id, not null]
+  id_doc integer [not null]
+  id_cus integer [not null]
+  id_pet integer [not null]
   time datetime2 [not null]
   status nvarchar [default: 'PENDING']
   created_at datetime2 [default: `now()`]
@@ -73,18 +72,38 @@ Table Schedule {
 
 Table MedicalRecords {
   id integer [primary key, increment]
-  id_schedule integer [ref: - Schedule.id, unique, not null]
-  id_service integer [ref: > Services.id, not null]
+  id_schedule integer [unique, not null]
+  id_service integer [not null]
   symptoms nvarchar
   diagnosis nvarchar
-  service_price decimal(18,0)
-  medicine_total_price decimal(18,0)
+  notes nvarchar // Bổ sung theo ERD
+  service_price decimal(18,2)
+  medicine_total_price decimal(18,2)
+  final_amount decimal(18,2) // Cột quan trọng để tính tổng tiền
+  created_at datetime2 [default: `now()`]
 }
 
 Table Prescriptions {
   id integer [primary key, increment]
-  id_medical_record integer [ref: > MedicalRecords.id, not null]
-  id_medicine integer [ref: > Medicines.id, not null]
+  id_medical_record integer [not null]
+  id_medicine integer [not null]
   quantity integer [not null]
-  price_at_sale decimal(18,0)
+  price_at_sale decimal(18,2)
 }
+
+// --- ĐỊNH NGHĨA MỐI QUAN HỆ (RELATIONSHIPS) ---
+
+// Quan hệ 1-1 (Hiện 2 chìa khóa vàng trong ERD)
+Ref: Account.id - Admin.id_account
+Ref: Account.id - Doctor.id_account
+
+// Quan hệ 1-N (Chìa khóa - Vô cực)
+Ref: Customers.id < Pets.id_owner
+Ref: Customers.id < Schedule.id_cus
+Ref: Doctor.id < Schedule.id_doc
+Ref: Pets.id < Schedule.id_pet
+
+Ref: Schedule.id - MedicalRecords.id_schedule // 1-1 vì 1 lịch hẹn 1 bệnh án
+Ref: Services.id < MedicalRecords.id_service
+Ref: MedicalRecords.id < Prescriptions.id_medical_record
+Ref: Medicines.id < Prescriptions.id_medicine
