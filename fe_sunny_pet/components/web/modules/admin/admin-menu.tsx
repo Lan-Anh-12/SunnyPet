@@ -5,7 +5,8 @@ import {
   UserCog, 
   Contact2, 
   Pill, 
-  LineChart 
+  LineChart, 
+  Calendar
 } from "lucide-react";
 import {
   SidebarGroup,
@@ -23,7 +24,9 @@ export function AdminMenu() {
   // 1. Giữ nguyên bộ MenuItems đã chốt
   const menuItems = [
     { title: "Tổng quan", icon: LayoutDashboard, href: "/admin" },
+    { title: "Lịch khám", icon: Calendar, href: "/admin/appointments" },
     { title: "Nhân sự", icon: UserCog, href: "/admin/staff" }, 
+
     { title: "Khách hàng", icon: Contact2, href: "/admin/customers" },
     { title: "Kho thuốc", icon: Pill, href: "/admin/inventory" },
     { title: "Thống kê doanh thu", icon: LineChart, href: "/admin/statistics" },

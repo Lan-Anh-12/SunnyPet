@@ -9,7 +9,7 @@ Table Account {
   updated_at datetime2 [default: `now()`]
 }
 
-// --- NHÓM 2: CHI TIẾT NGƯỜI DÙNG (QUAN HỆ 1-1 HIỆN 2 CHÌA KHÓA) ---
+// --- NHÓM 2: CHI TIẾT NGƯỜI DÙNG ---
 Table Admin {
   id integer [primary key, increment]
   id_account integer [unique, not null]
@@ -20,7 +20,7 @@ Table Doctor {
   id integer [primary key, increment]
   id_account integer [unique, not null]
   name nvarchar
-  specialization nvarchar
+  // ERD của bạn không hiện specialization nhưng có thể để dự phòng
 }
 
 Table Customers {
@@ -56,10 +56,10 @@ Table Medicines {
   stock_quantity integer [default: 0]
   cost_price decimal(18,2)
   selling_price decimal(18,2)
-  unit nvarchar // Bổ sung cột này vì trong bảng Medicine của bạn có
+  unit nvarchar 
 }
 
-// --- NHÓM 5: GIAO DỊCH ---
+// --- NHÓM 5: GIAO DỊCH & VẬN HÀNH ---
 Table Schedule {
   id integer [primary key, increment]
   id_doc integer [not null]
@@ -68,19 +68,25 @@ Table Schedule {
   time datetime2 [not null]
   status nvarchar [default: 'PENDING']
   created_at datetime2 [default: `now()`]
+  service_group nvarchar // Thêm theo ảnh SSMS của bạn
+  customer_note nvarchar // Thêm theo ảnh SSMS của bạn
 }
 
 Table MedicalRecords {
   id integer [primary key, increment]
   id_schedule integer [unique, not null]
-  id_service integer [not null]
   symptoms nvarchar
   diagnosis nvarchar
-  notes nvarchar // Bổ sung theo ERD
-  service_price decimal(18,2)
-  medicine_total_price decimal(18,2)
-  final_amount decimal(18,2) // Cột quan trọng để tính tổng tiền
+  notes nvarchar 
   created_at datetime2 [default: `now()`]
+}
+
+// Bảng trung gian chi tiết dịch vụ (Theo ERD và SSMS mới nhất)
+Table ServiceDetails {
+  id integer [primary key, increment]
+  id_medical_record integer [not null]
+  id_service integer [not null]
+  price_at_time decimal(18,2)
 }
 
 Table Prescriptions {
@@ -91,19 +97,34 @@ Table Prescriptions {
   price_at_sale decimal(18,2)
 }
 
+Table Doctor_Leave {
+  LeaveID integer [primary key, increment]
+  DoctorID integer [not null]
+  LeaveDate date [not null]
+  Reason nvarchar
+  Status nvarchar
+  AdminNote nvarchar
+  CreatedAt datetime2 [default: `now()`]
+}
+
 // --- ĐỊNH NGHĨA MỐI QUAN HỆ (RELATIONSHIPS) ---
 
-// Quan hệ 1-1 (Hiện 2 chìa khóa vàng trong ERD)
+// Quan hệ 1-1
 Ref: Account.id - Admin.id_account
 Ref: Account.id - Doctor.id_account
+Ref: Schedule.id - MedicalRecords.id_schedule
 
-// Quan hệ 1-N (Chìa khóa - Vô cực)
+// Quan hệ 1-N
 Ref: Customers.id < Pets.id_owner
 Ref: Customers.id < Schedule.id_cus
 Ref: Doctor.id < Schedule.id_doc
 Ref: Pets.id < Schedule.id_pet
 
-Ref: Schedule.id - MedicalRecords.id_schedule // 1-1 vì 1 lịch hẹn 1 bệnh án
-Ref: Services.id < MedicalRecords.id_service
+// Luồng Bệnh án - Dịch vụ - Thuốc
+Ref: MedicalRecords.id < ServiceDetails.id_medical_record
+Ref: Services.id < ServiceDetails.id_service
 Ref: MedicalRecords.id < Prescriptions.id_medical_record
 Ref: Medicines.id < Prescriptions.id_medicine
+
+// Quản lý nghỉ phép
+Ref: Doctor.id < Doctor_Leave.DoctorID

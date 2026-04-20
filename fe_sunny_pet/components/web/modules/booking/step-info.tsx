@@ -70,9 +70,9 @@ export default function StepInfo({ onNext, updateData, data }: StepInfoProps) {
                 className="w-full px-5 py-4 rounded-xl border border-gray-100 bg-white text-sm focus:border-[#E5484D] focus:ring-1 focus:ring-[#E5484D]/30 transition appearance-none"
               >
                 <option value="" disabled>-- Chọn loài --</option>
-                <option value="Cho">🐶 Chó</option>
-                <option value="Meo">🐱 Mèo</option>
-                <option value="Khac">🐾 Khác</option>
+                <option value="Cho"> Chó</option>
+                <option value="Meo"> Mèo</option>
+                <option value="Khac"> Khác</option>
               </select>
             </div>
           </div>

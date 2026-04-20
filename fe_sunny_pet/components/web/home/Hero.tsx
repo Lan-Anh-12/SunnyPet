@@ -1,3 +1,4 @@
+import { CalendarDays } from "lucide-react";
 import Link from "next/dist/client/link";
 
 export function Hero() {
@@ -27,9 +28,10 @@ export function Hero() {
         </p>
         
         <div className="flex flex-col md:flex-row gap-4">
-          <Link href="/booking">
-            <button className="bg-[#E5484D] hover:bg-[#C83D44] px-8 py-4 rounded-full font-semibold transition">
-            📅 Đặt lịch khám ngay
+          <Link href="/booking" className="w-max">
+              <button className="bg-[#E5484D] hover:bg-[#C83D44] text-white px-8 py-4 rounded-full font-black transition flex items-center justify-center gap-2">
+                <CalendarDays className="size-5" /> {/* Tăng size lên 5 cho cân đối với chữ */}
+                <span className="whitespace-nowrap">Đặt lịch khám ngay</span>
             </button>
           </Link>
           <Link href="#dich-vu">
